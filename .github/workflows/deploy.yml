@@ -51,6 +51,29 @@ jobs:
         with:
           terraform_wrapper: false  # Important: disable wrapper to get raw outputs
 
+      - name: Import existing IAM role (if needed)
+        working-directory: ./terraform
+        run: |
+          ENV=${{ github.event.inputs.environment || 'dev' }}
+          AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION=${{ secrets.DEFAULT_AWS_REGION }}
+          GITHUB_REPO="ShubhankarRk/shub-twin"
+          
+          # Initialize terraform backend
+          terraform init -input=false \
+            -backend-config="bucket=twin-terraform-state-${AWS_ACCOUNT_ID}" \
+            -backend-config="key=${ENV}/terraform.tfstate" \
+            -backend-config="region=${AWS_REGION}" \
+            -backend-config="dynamodb_table=twin-terraform-locks" \
+            -backend-config="encrypt=true" || true
+          
+          # Select or create workspace
+          terraform workspace select ${ENV} || terraform workspace new ${ENV}
+          
+          # Try to import the role if it exists in AWS but not in state
+          terraform import -var="github_repository=${GITHUB_REPO}" aws_iam_role.github_actions github-actions-twin-deploy 2>&1 || echo "Role already in state or doesn't exist, continuing..."
+        continue-on-error: true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
