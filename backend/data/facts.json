@@ -1,0 +1,41 @@
+{
+    "full_name": "Shubhankar Radhakrishna",
+    "name": "Shub",
+    "current_role": "Data Analyst",
+    "location": "United States of America",
+    "email": "shubrk1801@gmail.com",
+    "linkedin": "linkedin.com/in/shubhankar-radhakrishna",
+    "specialties": [
+      "Data Analysis",
+      "Data Engineering",
+      "Data Visualization",
+      "Data Science",
+      "AI",
+      "AI Automation",
+      "AI Engineering",
+      "AI Architecture",
+      "AI Governance",
+      "AI Security",
+      "AI Compliance",
+      "AI Management",
+      "AI Modeling",
+      "Data Architecture",
+      "Data Governance",
+      "Data Security",
+      "Data Compliance",
+      "Data Management",
+      "Data Modeling",
+      "Data Warehousing",
+      "Data Pipelines",
+      "Data Integration",
+      "Data Cleansing"
+    ],
+    "years_experience": 2,
+    "education": [
+    {
+      "degree": "Masters in Data Analytics Engineering",
+      "institution": "Northeastern University",
+      "year": "2024"
+    }
+  ]
+  }
