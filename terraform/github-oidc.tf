@@ -9,21 +9,10 @@ variable "github_repository" {
 # Note: aws_caller_identity.current is already defined in main.tf
 
 # GitHub OIDC Provider
-# Note: If this already exists in your account, you'll need to import it:
-# terraform import aws_iam_openid_connect_provider.github arn:aws:iam::ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com
-resource "aws_iam_openid_connect_provider" "github" {
+# Note: This should already exist in your account (created one-time)
+# Using data source to reference existing provider instead of creating it
+data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
-  
-  client_id_list = [
-    "sts.amazonaws.com"
-  ]
-  
-  # This thumbprint is from GitHub's documentation
-  # Verify current value at: https://github.blog/changelog/2023-06-27-github-actions-update-on-oidc-integration-with-aws/
-  thumbprint_list = [
-    "6938fd4d98bab03faadb97b34396831e3780aea1",
-    "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
-  ]
 }
 
 # IAM Role for GitHub Actions
@@ -36,7 +25,7 @@ resource "aws_iam_role" "github_actions" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
+          Federated = data.aws_iam_openid_connect_provider.github.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
