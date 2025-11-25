@@ -13,9 +13,17 @@ echo "📦 Building Lambda package..."
 
 # 2. Terraform workspace & apply
 cd terraform
+# Verify AWS credentials are set
+echo "🔍 Verifying AWS credentials..."
+if ! aws sts get-caller-identity > /dev/null 2>&1; then
+    echo "❌ Error: AWS credentials are not configured or invalid"
+    exit 1
+fi
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 AWS_REGION=${DEFAULT_AWS_REGION:-us-east-1}
-terraform init -input=false \
+echo "✅ Using AWS Account: ${AWS_ACCOUNT_ID}, Region: ${AWS_REGION}"
+# Use -reconfigure to ensure fresh credentials are used (important for OIDC)
+terraform init -reconfigure -input=false \
   -backend-config="bucket=twin-terraform-state-${AWS_ACCOUNT_ID}" \
   -backend-config="key=${ENVIRONMENT}/terraform.tfstate" \
   -backend-config="region=${AWS_REGION}" \

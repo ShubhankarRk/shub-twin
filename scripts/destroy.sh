@@ -18,13 +18,20 @@ echo "🗑️ Preparing to destroy ${PROJECT_NAME}-${ENVIRONMENT} infrastructure
 # Navigate to terraform directory
 cd "$(dirname "$0")/../terraform"
 
-# Get AWS Account ID and Region for backend configuration
+# Verify AWS credentials are set
+echo "🔍 Verifying AWS credentials..."
+if ! aws sts get-caller-identity > /dev/null 2>&1; then
+    echo "❌ Error: AWS credentials are not configured or invalid"
+    exit 1
+fi
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 AWS_REGION=${DEFAULT_AWS_REGION:-us-east-1}
+echo "✅ Using AWS Account: ${AWS_ACCOUNT_ID}, Region: ${AWS_REGION}"
 
 # Initialize terraform with S3 backend
 echo "🔧 Initializing Terraform with S3 backend..."
-terraform init -input=false \
+# Use -reconfigure to ensure fresh credentials are used
+terraform init -reconfigure -input=false \
   -backend-config="bucket=twin-terraform-state-${AWS_ACCOUNT_ID}" \
   -backend-config="key=${ENVIRONMENT}/terraform.tfstate" \
   -backend-config="region=${AWS_REGION}" \
